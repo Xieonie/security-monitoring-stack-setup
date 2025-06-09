@@ -155,9 +155,10 @@ Grafana: ```http://<your_server_ip>:3000```
 Prometheus needs exporters to gather metrics from your target hosts. ```node_exporter``` is common for system-level metrics.
 
 ### Download and Run Node Exporter:
-    Go to the Prometheus downloads page and get the latest release for your target OS.
 
-    Extract and run it (typically listens on port ```9100```).
+  Go to the Prometheus downloads page and get the latest release for your target OS.
+
+  Extract and run it (typically listens on port ```9100```).
 
 ```
 # Example for Linux
