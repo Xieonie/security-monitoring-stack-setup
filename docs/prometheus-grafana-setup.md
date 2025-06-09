@@ -129,15 +129,15 @@ Grafana: ```http://<your_server_ip>:3000```
 
 1. Add Data Source:
 
-		Go to ```Configuration (gear icon)``` -> ```Data Sources```.
+Go to ```Configuration (gear icon)``` -> ```Data Sources```.
 
-		Click ```Add data source```.
+Click ```Add data source```.
 
-		Select ```Prometheus```.
+Select ```Prometheus```.
 
-		HTTP URL: ```http://prometheus:9090``` (Grafana can reach Prometheus via its service name because they are in the same Docker Compose network).
+HTTP URL: ```http://prometheus:9090``` (Grafana can reach Prometheus via its service name because they are in the same Docker Compose network).
 
-    	Click ```Save & Test```.
+Click ```Save & Test```.
 
 
 
