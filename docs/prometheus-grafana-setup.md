@@ -141,13 +141,13 @@ Grafana: ```http://<your_server_ip>:3000```
 
 
 
-2. Import/Create Dashboards:
+  2. Import/Create Dashboards:
 
-You can import dashboards from Grafana.com (e.g., Node Exporter Full dashboard ID: ```1860```).
+      You can import dashboards from Grafana.com (e.g., Node Exporter Full dashboard ID: ```1860```).
 
-You can create your own dashboards by adding panels and querying your Prometheus data source.
+      You can create your own dashboards by adding panels and querying your Prometheus data source.
 
-An example basic dashboard JSON structure is provided in ```grafana-dashboards/system-overview-dashboard.json```. You can import this via ```Create (plus icon)``` -> ```Import```.
+      An example basic dashboard JSON structure is provided in ```grafana-dashboards/system-overview-dashboard.json```. You can import this via ```Create (plus icon)``` -> ```Import```
 
 
 ## Node Exporter Setup (on monitored hosts)
@@ -161,13 +161,14 @@ Extract and run it (typically listens on port ```9100```).
 
 ```
 # Example for Linux
+
 wget [https://github.com/prometheus/node_exporter/releases/download/vX.Y.Z/node_exporter-X.Y.Z.linux-amd64.tar.gz](https://github.com/prometheus/node_exporter/releases/download/vX.Y.Z/node_exporter-X.Y.Z.linux-amd64.tar.gz)
 tar xvfz node_exporter-X.Y.Z.linux-amd64.tar.gz
 cd node_exporter-X.Y.Z.linux-amd64
 ./node_exporter
 ```
 
-  ### Consider running ```node_exporter``` as a systemd service for persistence.
+   Consider running ```node_exporter``` as a systemd service for persistence.
 
 
 2. ### Add to Prometheus Config: Add the host and port (e.g., ```your_target_host_ip:9100```) to your ```prometheus.yml``` under ```scrape_configs```.
