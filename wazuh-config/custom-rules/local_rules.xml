@@ -1,0 +1,95 @@
+<group name="local,custom_security_rules,">
+
+  <rule id="100001" level="8">
+    <if_sid>5503</if_sid> <match>sudo: USER=root</match> <description>User $(srcuser) successfully executed sudo as root: $(command).</description>
+    <group>sudo,authentication_success,pci_dss_10.2.5,gpg13_7.1,gdpr_IV_32.2,</group>
+  </rule>
+
+  <field name="audit.syscall">open|openat</field>
+    <field name="audit.file_path">^/etc/shadow$</field>
+    <description>Sensitive file /etc/shadow accessed by user $(audit.username).</description>
+    <group>gdpr_IV_30.1.c,pci_dss_10.2.4,tsc_PI1.4,hipaa_164.312.b,</group>
+  </rule>
+  -->
+
+  <field name="process_name">^my_critical_app$</field>
+    <field name="process_status">^stopped$</field>
+    <description>Critical process $(process_name) has stopped!</description>
+    <group>service_availability,</group>
+  </rule>
+  -->
+
+  </group> ```
+
+---
+**File: `splunk-config/inputs.conf.example`** (For Splunk Universal Forwarder)
+---
+```ini
+# inputs.conf.example for Splunk Universal Forwarder
+# Place this file in $SPLUNK_HOME/etc/system/local/inputs.conf or in a custom app on the UF.
+# This tells the UF what data to collect and send to Splunk Indexers.
+
+# Monitor all activity in /var/log
+[monitor:///var/log]
+disabled = false
+sourcetype = syslog_auto # Or be more specific if possible, e.g., linux_secure for auth.log
+index = os_logs          # Send to this index on Splunk server
+# Optionally add host, crcSalt, etc.
+# host = myhostname
+
+# Example for a specific application log file
+[monitor:///opt/myapp/logs/app.log]
+disabled = false
+sourcetype = myapp_log
+index = app_logs
+# You might need a custom props.conf on Splunk server for line breaking, timestamp, etc. for 'myapp_log'
+
+# Example for Apache access logs
+[monitor:///var/log/apache2/access.log]
+disabled = false
+sourcetype = access_combined # Common Splunk sourcetype for Apache access logs
+index = web_logs
+
+[monitor:///var/log/apache2/error.log]
+disabled = false
+sourcetype = apache_error # Common Splunk sourcetype for Apache error logs
+index = web_logs
+
+# Example for script execution output
+# [script:///opt/splunk_scripts/my_health_check.sh]
+# disabled = true # Enable if needed
+# interval = 300  # Run every 5 minutes
+# sourcetype = my_script_output
+# index = script_outputs
+# source = my_health_check
+
+# Example for Windows Event Logs (if UF is on Windows)
+# [WinEventLog://Application]
+# disabled = false
+# index = wineventlog
+# current_only = 0
+# checkpointInterval = 5
+
+# [WinEventLog://Security]
+# disabled = false
+# index = wineventlog
+# current_only = 0
+# evt_resolve_ad_obj = 1 # Resolve SIDs
+# checkpointInterval = 5
+
+# [WinEventLog://System]
+# disabled = false
+# index = wineventlog
+# current_only = 0
+# checkpointInterval = 5
+
+# Forwarding data from Wazuh alerts (if Wazuh manager writes alerts to a file readable by UF)
+# This is one way; another is using Wazuh's built-in forwarding or Splunk App for Wazuh.
+# [monitor:///var/ossec/logs/alerts/alerts.json] # Assuming Wazuh manager alerts.json path
+# disabled = true # Enable if this method is used
+# sourcetype = wazuh_alerts_json
+# index = wazuh
+# initCrcLength = 256
+# CHECK_METHOD = modtime # Or entire_md5
+
+# Ensure you have appropriate indexes and sourcetypes configured on your Splunk Indexers/Search Heads.

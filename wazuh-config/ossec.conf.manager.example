@@ -1,0 +1,57 @@
+<ossec_config>
+  <global>
+    <jsonout_output>yes</jsonout_output>
+    <alerts_log>yes</alerts_log>
+    <logall>no</logall> <logall_json>no</logall_json>
+    <stats>2</stats>
+    <kom_config_retries>3</kom_config_retries>
+    <kom_config_retry_interval>30s</kom_config_retry_interval>
+  </global>
+
+  <ruleset>
+    <decoder_dir>ruleset/decoders</decoder_dir>
+    <rule_dir>ruleset/rules</rule_dir>
+    <decoder_dir>etc/decoders</decoder_dir>
+    <rule_dir>etc/rules</rule_dir>
+    <list>etc/lists/audit-keys</list>
+    <list>etc/lists/amazon/aws-eventnames</list>
+    <list>etc/lists/security-eventchannel</list>
+    <list>etc/lists/software-vendors</list>
+
+    </ruleset>
+
+  <remote>
+    <connection>secure</connection> <port>1514</port>
+    <protocol>udp</protocol> <queue_size>131072</queue_size>
+    </remote>
+
+  <syscheck>
+    <disabled>no</disabled>
+    <frequency>43200</frequency> <scan_on_start>yes</scan_on_start>
+    <auto_ignore frequency="10" timeframe="1h">no</auto_ignore>
+
+    <directories check_all="yes" realtime="yes" report_changes="yes" whodata="yes">/etc,/usr/bin,/usr/sbin</directories>
+    <directories check_all="yes" realtime="yes" report_changes="yes" whodata="yes">/bin,/sbin,/boot</directories>
+
+    <ignore>/etc/mtab</ignore>
+    <ignore>/etc/hosts.deny</ignore>
+    <ignore type="sregex">.log$|.swp$</ignore>
+  </syscheck>
+
+  <rootcheck>
+    <disabled>no</disabled>
+    <check_unixaudit>yes</check_unixaudit>
+    <check_files>yes</check_files>
+    <check_trojans>yes</check_trojans>
+    <check_dev>yes</check_dev>
+    <check_sys>yes</check_sys>
+    <check_pids>yes</check_pids>
+    <check_ports>yes</check_ports>
+    <check_if>yes</check_if>
+    <frequency>43200</frequency> <rootkit_files>etc/rootcheck/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>etc/rootcheck/rootkit_trojans.txt</rootkit_trojans>
+    <system_audit>etc/rootcheck/system_audit_rcl.txt</system_audit>
+    <cis_debian_linux_rcl>etc/rootcheck/cis_debian_linux_rcl.txt</cis_debian_linux_rcl>
+  </rootcheck>
+
+  </ossec_config>

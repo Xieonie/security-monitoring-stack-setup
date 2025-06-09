@@ -1,0 +1,118 @@
+# alertmanager.yml.example
+# Global Alertmanager configuration.
+
+global:
+  # The smarthost and SMTP sender used for mail notifications.
+  # smtp_smarthost: 'localhost:25'
+  # smtp_from: 'alertmanager@example.org'
+  # smtp_auth_username: 'user'
+  # smtp_auth_password: 'password'
+  # smtp_require_tls: true
+
+  # Slack API URL for Slack notifications.
+  # slack_api_url: '<YOUR_SLACK_WEBHOOK_URL>'
+
+  # Other global settings like OpsGenie, PagerDuty, VictorOps API keys...
+
+# Routing tree for alerts.
+route:
+  # The root route. All alerts enter here.
+  receiver: 'default-receiver' # Default receiver if no other match.
+  group_by: ['alertname', 'cluster', 'service'] # How to group alerts.
+  # How long to initially wait to send a notification for a group of alerts.
+  # Allows time for more alerts for the same group to arrive.
+  group_wait: 30s
+  # How long to wait before sending a notification about new alerts that
+  # are added to a group of alerts for which an initial notification has already been sent.
+  group_interval: 5m
+  # How long to wait before sending a notification again if it has already
+  # been sent successfully for an alert.
+  repeat_interval: 4h
+
+  # Child routes. Alerts will be tried against these routes in order.
+  routes:
+    # Example: Route critical alerts to a PagerDuty receiver
+    - receiver: 'pagerduty-critical'
+      matchers:
+        - severity = critical
+      # continue: false # If true, an alert that matches this route will also be sent to subsequent sibling routes and the parent's receiver.
+
+    # Example: Route warning alerts to Slack
+    - receiver: 'slack-warnings'
+      matchers:
+        - severity = warning
+      # continue: true
+
+    # Example: Silence alerts for a specific host during maintenance
+    # - receiver: 'blackhole' # A receiver that does nothing
+    #   matchers:
+    #     - instance = "host-under-maintenance.example.com"
+    #   active_time_intervals:
+    #     - maintenance_window_1
+
+# Inhibition rules allow to mute a set of alerts given that another alert is firing.
+# inhibit_rules:
+#   - target_matchers:
+#       - severity = "warning"
+#     source_matchers:
+#       - severity = "critical"
+#     # Do not send warning alerts if the same alertname is already firing with critical severity.
+#     equal: ['alertname', 'cluster', 'service']
+
+# A list of notification receivers.
+receivers:
+  - name: 'default-receiver'
+    # This receiver is a blackhole if no specific configurations are provided.
+    # It's good practice to have a default, even if it just logs or is a placeholder.
+    webhook_configs:
+      - url: 'http://localhost:5001/' # Example: a dummy logger or event forwarder
+
+  - name: 'email-notifications'
+    email_configs:
+      - to: 'your-email@example.com'
+        # Optional:
+        # send_resolved: true
+        # from: 'alertmanager@yourdomain.com'
+        # smarthost: 'smtp.yourprovider.com:587'
+        # auth_username: 'your_smtp_user'
+        # auth_identity: 'your_smtp_user' # Usually same as username
+        # auth_password: 'your_smtp_password'
+        # require_tls: true
+        # headers:
+        #   Subject: 'Alertmanager: {{ .CommonAnnotations.summary }}'
+        # html: '{{ template "email.default.html" . }}' # Default email template
+
+  - name: 'slack-warnings'
+    slack_configs:
+      - api_url: '<YOUR_SLACK_WEBHOOK_URL_FOR_WARNINGS>' # Get this from Slack
+        channel: '#alerts-warning'
+        send_resolved: true
+        # Optional: title, text, icon_emoji, username, etc.
+        # title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }} for {{ .CommonLabels.job }}'
+        # text: >-
+        #   {{ range .Alerts }}
+        #     *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+        #     *Description:* {{ .Annotations.description }}
+        #     *Details:*
+        #       {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+        #       {{ end }}
+        #   {{ end }}
+
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - service_key: '<YOUR_PAGERDUTY_INTEGRATION_KEY>' # Or routing_key
+        send_resolved: true
+        # Optional: client, client_url, description, severity, class, component, group, etc.
+        # description: "{{ .CommonAnnotations.summary }} - {{ .CommonLabels.alertname }}"
+
+  - name: 'blackhole' # A receiver that does nothing, used to silence alerts.
+
+# Time intervals can be used in routes to mute notifications during specific times.
+# time_intervals:
+#   - name: maintenance_window_1
+#     time_intervals:
+#       - times: # Daily 2am-3am UTC
+#           - start_time: "02:00"
+#             end_time: "03:00"
+#         weekdays: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+#         # location: "Europe/Berlin" # Optional timezone

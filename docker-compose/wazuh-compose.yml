@@ -1,0 +1,87 @@
+# wazuh-compose.yml
+# IMPORTANT: This is a conceptual placeholder.
+# For a reliable and up-to-date Docker deployment of Wazuh,
+# it is STRONGLY RECOMMENDED to use the official Docker Compose files and instructions
+# from the Wazuh GitHub repository: https://github.com/wazuh/wazuh-docker
+#
+# The official repository provides different compose files for single-node, multi-node,
+# and specific versions, including scripts for certificate generation.
+#
+# This placeholder illustrates the components you might find.
+# DO NOT USE THIS FILE FOR PRODUCTION WITHOUT CONSULTING OFFICIAL WAZUH DOCUMENTATION.
+
+version: '3.8'
+
+services:
+  # This is a highly simplified representation.
+  # A real Wazuh Docker setup involves wazuh-indexer, wazuh-manager, and wazuh-dashboard,
+  # often with a certs-generator helper.
+
+  wazuh-manager:
+    image: wazuh/wazuh-manager:4.x.x # Replace with a specific, current version tag
+    container_name: wazuh_manager
+    hostname: wazuh-manager
+    restart: always
+    ports:
+      - "1514:1514/udp"  # Agent communication
+      - "1515:1515/tcp"  # Agent registration
+      - "55000:55000/tcp" # Wazuh API
+    # volumes:
+      # - ./wazuh_manager_data/etc:/var/ossec/etc # Persistent config (careful with upgrades)
+      # - ./wazuh_manager_data/logs:/var/ossec/logs
+      # - ./wazuh_manager_data/queue:/var/ossec/queue
+      # - ./wazuh_manager_data/data:/var/ossec/data # If using embedded SQLite for agents DB (not recommended for large)
+    # environment:
+      # - WAZUH_CLUSTER_KEY=your_cluster_key # If part of a cluster
+      # - WAZUH_NODE_NAME=wazuh-manager-1
+      # - WAZUH_NODE_TYPE=master # or worker
+    # depends_on:
+    #   - wazuh-indexer
+    networks:
+      - wazuh_network
+
+  # wazuh-indexer: (Example - refer to official Wazuh Docker for actual implementation)
+  #   image: wazuh/wazuh-indexer:4.x.x
+  #   container_name: wazuh_indexer
+  #   hostname: wazuh-indexer
+  #   restart: always
+  #   ports:
+  #     - "9200:9200" # OpenSearch API
+  #     - "9300:9300" # OpenSearch inter-node communication
+  #   # volumes:
+  #   #   - wazuh_indexer_data:/usr/share/wazuh-indexer/data
+  #   # environment:
+  #   #   - discovery.type=single-node # For single node setup
+  #   #   - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g # Adjust memory
+  #   networks:
+  #     - wazuh_network
+
+  # wazuh-dashboard: (Example - refer to official Wazuh Docker for actual implementation)
+  #   image: wazuh/wazuh-dashboard:4.x.x
+  #   container_name: wazuh_dashboard
+  #   hostname: wazuh-dashboard
+  #   restart: always
+  #   ports:
+  #     - "443:5601" # Expose OpenSearch Dashboards (Wazuh Dashboard)
+  #   # environment:
+  #   #   - WAZUH_INDEXER_URL=https://wazuh-indexer:9200
+  #   #   - DASHBOARDS_USERNAME=admin # Default admin user
+  #   #   - DASHBOARDS_PASSWORD=SecretPassword # Default password - CHANGE THIS
+  #   # depends_on:
+  #   #   - wazuh-indexer
+  #   networks:
+  #     - wazuh_network
+
+# volumes:
+  # wazuh_manager_data:
+  # wazuh_indexer_data:
+
+networks:
+  wazuh_network:
+    driver: bridge
+
+# Again, please fetch the correct and complete docker-compose.yml
+# from the official Wazuh Docker repository for the version you intend to use:
+# https://github.com/wazuh/wazuh-docker
+# It will also include instructions on certificate generation for secure communication
+# between Wazuh components.

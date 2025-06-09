@@ -1,0 +1,103 @@
+# prometheus/rules/security-alerts.rules.yml
+# Example Prometheus alerting rules. Adapt these to your environment and metrics.
+
+groups:
+- name: HostSystemAlerts
+  rules:
+  # Alert for high CPU load (e.g., > 80% for 5 minutes)
+  - alert: HostHighCpuLoad
+    expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+      context: system
+    annotations:
+      summary: "Host high CPU load on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} CPU load is at {{ $value | printf \"%.2f\" }}% for the last 5 minutes."
+      value: "{{ $value | printf \"%.2f\" }}%"
+      documentation_url: "http://internal-wiki/doc/cpu-load"
+
+  # Alert for low free memory (e.g., < 10% free for 5 minutes)
+  # This calculation for "percentage free" might need adjustment based on your node_exporter version and metrics available.
+  # node_memory_MemAvailable_bytes is generally preferred over MemFree_bytes.
+  - alert: HostLowMemory
+    expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10
+    for: 5m
+    labels:
+      severity: warning
+      context: system
+    annotations:
+      summary: "Host low memory on {{ $labels.instance }}"
+      description: "{{ $labels.instance }} has only {{ $value | printf \"%.2f\" }}% memory available for the last 5 minutes."
+      value: "{{ $value | printf \"%.2f\" }}%"
+
+  # Alert for low disk space (e.g., < 10% free on root filesystem)
+  - alert: HostLowRootDiskSpace
+    expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+    for: 5m
+    labels:
+      severity: critical
+      context: system
+    annotations:
+      summary: "Host low root disk space on {{ $labels.instance }}"
+      description: "Root disk space on {{ $labels.instance }} is at {{ $value | printf \"%.2f\" }}% free."
+      value: "{{ $value | printf \"%.2f\" }}%"
+
+  # Alert if a host is down (node_exporter is unreachable)
+  - alert: HostDown
+    expr: up{job="node_exporter_hosts"} == 0 # Adjust job name if different
+    for: 3m
+    labels:
+      severity: critical
+      context: availability
+    annotations:
+      summary: "Host {{ $labels.instance }} is down"
+      description: "Node exporter on {{ $labels.instance }} has been unreachable for 3 minutes."
+
+  # Alert for high network traffic (example: > 100MB/s received for 5m)
+  # - alert: HighNetworkReceiveRate
+  #   expr: rate(node_network_receive_bytes_total{device!="lo"}[1m]) / 1024 / 1024 > 100
+  #   for: 5m
+  #   labels:
+  #     severity: warning
+  #     context: network
+  #   annotations:
+  #     summary: "High network receive rate on {{ $labels.instance }} ({{ $labels.device }})"
+  #     description: "{{ $labels.instance }} device {{ $labels.device }} is receiving {{ $value | printf \"%.2f\" }} MB/s."
+
+
+# Placeholder for security specific alerts if metrics are available
+# e.g., from blackbox exporter probing security endpoints or custom exporters.
+# - name: SecurityServiceAlerts
+#   rules:
+#   - alert: SSLCertificateExpiresSoon
+#     expr: probe_ssl_earliest_cert_expiry{job="blackbox_http_probes"} - time() < 86400 * 14 # 14 days
+#     labels:
+#       severity: warning
+#       context: ssl_cert
+#     annotations:
+#       summary: "SSL certificate for {{ $labels.instance }} expires soon"
+#       description: "The SSL certificate for {{ $labels.instance }} will expire in {{ ($value | humanizeDuration) }}."
+
+#   - alert: WebServiceDown
+#     expr: probe_success{job="blackbox_http_probes"} == 0
+#     for: 2m
+#     labels:
+#       severity: critical
+#       context: availability
+#     annotations:
+#       summary: "Web service {{ $labels.instance }} is down"
+#       description: "{{ $labels.instance }} has been unreachable for 2 minutes."
+
+# Example for alerts from Wazuh if exposed via an exporter (this is hypothetical)
+# - name: WazuhHighSeverityAlerts
+#   rules:
+#   - alert: WazuhCriticalAgentAlert
+#     expr: wazuh_agent_alerts{severity="critical"} > 0 # Replace with actual metric if available
+#     for: 1m
+#     labels:
+#       severity: critical
+#       context: wazuh
+#     annotations:
+#       summary: "Critical alert from Wazuh agent {{ $labels.agent_name }}"
+#       description: "{{ $labels.description }}"

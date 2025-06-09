@@ -1,0 +1,63 @@
+# prometheus.yml.example
+# Global Prometheus configuration.
+
+global:
+  scrape_interval: 15s # Default scrape interval for targets
+  evaluation_interval: 15s # How often to evaluate rules
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093' # Assumes Alertmanager is running and accessible as 'alertmanager' (e.g., in Docker Compose)
+
+# Load rule files from this directory.
+rule_files:
+  - 'rules/*.rules.yml' # Path relative to prometheus.yml or absolute path
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A list of scrape configurations.
+scrape_configs:
+  # Scrape Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090'] # Prometheus listens on port 9090
+
+  # Example job for Node Exporter (monitors Linux/Unix system metrics)
+  # Ensure Node Exporter is running on the target machines and port 9100 is accessible.
+  - job_name: 'node_exporter_hosts'
+    static_configs:
+      - targets:
+          - 'node-exporter-host1-ip:9100' # Replace with actual IP/hostname
+          - 'node-exporter-host2-ip:9100' # Add more hosts here
+        labels:
+          group: 'production_servers' # Example label
+
+  # Example job for Blackbox Exporter (probes endpoints over HTTP, HTTPS, TCP, ICMP, DNS)
+  # Ensure Blackbox Exporter is running and accessible.
+  # - job_name: 'blackbox_http_probes'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [http_2xx] # Probe using http_2xx module defined in blackbox.yml
+  #   static_configs:
+  #     - targets:
+  #       - https://google.com
+  #       - https://your-app.com
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: blackbox-exporter-ip:9115 # Address of Blackbox Exporter
+
+  # Example job for Wazuh Manager metrics (if Wazuh exposes Prometheus metrics)
+  # This is hypothetical; check Wazuh documentation for Prometheus integration.
+  # - job_name: 'wazuh_manager'
+  #   static_configs:
+  #     - targets: ['wazuh-manager-ip:9201'] # Example port, verify actual if available
+
+  # Add more jobs for other services and exporters (e.g., cAdvisor, JMX exporter, etc.)

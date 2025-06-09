@@ -1,0 +1,45 @@
+# props.conf.example for Splunk Search Head / Indexer
+# Place this file in $SPLUNK_HOME/etc/system/local/props.conf or in a custom app.
+# This defines how Splunk should parse data for specific sourcetypes.
+
+# Example for a custom application log with JSON format
+[myapp_log_json]
+# Assuming logs are single-line JSON
+SHOULD_LINEMERGE = false
+LINE_BREAKER = ([\r\n]+)
+KV_MODE = json
+# Optional: Define timestamp extraction if not automatically picked up
+# TIME_PREFIX = \"timestamp\":\s*\"
+# TIME_FORMAT = %Y-%m-%dT%H:%M:%S.%3N%Z
+# MAX_TIMESTAMP_LOOKAHEAD = 30
+
+# Example for a multi-line log format (e.g., Java stack traces)
+[my_java_app_log]
+SHOULD_LINEMERGE = true
+# Break before a line starting with a timestamp (e.g., YYYY-MM-DD HH:MM:SS)
+BREAK_ONLY_BEFORE = \d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}
+# Optional: Truncate lines longer than X characters
+# TRUNCATE = 10000
+# Optional: Define timestamp
+# TIME_PREFIX = ^
+# TIME_FORMAT = %Y-%m-%d %H:%M:%S
+# MAX_TIMESTAMP_LOOKAHEAD = 20
+
+# Example for Wazuh alerts if forwarded as JSON and sourcetyped as 'wazuh_alerts_json'
+[wazuh_alerts_json]
+KV_MODE = json
+SHOULD_LINEMERGE = false
+# Wazuh JSON alerts usually have a 'timestamp' field. Splunk might pick it up automatically.
+# If not, define TIME_PREFIX and TIME_FORMAT. Example:
+# TIME_PREFIX = \"timestamp\":\s*\"
+# TIME_FORMAT = %Y-%m-%dT%H:%M:%S.%3N%Z
+# MAX_TIMESTAMP_LOOKAHEAD = 30
+# Optional: Field extractions using REPORT-* or KV_MODE=json as above.
+# REPORT-wazuh_fields = wazuh_extract_json_fields
+
+# For default sourcetypes like 'syslog', 'access_combined', 'apache_error',
+# Splunk often has built-in parsing rules. You typically only add stanzas
+# here to override default behavior or for custom sourcetypes.
+
+# Note: After making changes to props.conf, Splunk needs to be restarted
+# or metadata reloaded for the changes to take effect on new data.
