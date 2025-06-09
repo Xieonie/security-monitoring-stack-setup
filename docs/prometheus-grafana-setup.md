@@ -143,20 +143,21 @@ Grafana: ```http://<your_server_ip>:3000```
 
 2. Import/Create Dashboards:
 
-		You can import dashboards from Grafana.com (e.g., Node Exporter Full dashboard ID: ```1860```).
+You can import dashboards from Grafana.com (e.g., Node Exporter Full dashboard ID: ```1860```).
 
-		You can create your own dashboards by adding panels and querying your Prometheus data source.
+You can create your own dashboards by adding panels and querying your Prometheus data source.
 
-		An example basic dashboard JSON structure is provided in ```grafana-dashboards/system-overview-dashboard.json```. You can import this via ```Create (plus icon)``` -> ```Import```.
+An example basic dashboard JSON structure is provided in ```grafana-dashboards/system-overview-dashboard.json```. You can import this via ```Create (plus icon)``` -> ```Import```.
 
 
 ## Node Exporter Setup (on monitored hosts)
 
 Prometheus needs exporters to gather metrics from your target hosts. ```node_exporter``` is common for system-level metrics.
 
-1. # Download and Run Node Exporter:
-		Go to the Prometheus downloads page and get the latest release for your target OS.
-		Extract and run it (typically listens on port ```9100```).
+1. ### Download and Run Node Exporter:
+Go to the Prometheus downloads page and get the latest release for your target OS.
+
+Extract and run it (typically listens on port ```9100```).
 
 ```
 # Example for Linux
@@ -166,9 +167,9 @@ cd node_exporter-X.Y.Z.linux-amd64
 ./node_exporter
 ```
 
-  # Consider running ```node_exporter``` as a systemd service for persistence.
+  ### Consider running ```node_exporter``` as a systemd service for persistence.
 
 
-2. # Add to Prometheus Config: Add the host and port (e.g., ```your_target_host_ip:9100```) to your ```prometheus.yml``` under ```scrape_configs```.
+2. ### Add to Prometheus Config: Add the host and port (e.g., ```your_target_host_ip:9100```) to your ```prometheus.yml``` under ```scrape_configs```.
 
-3. # Firewall: Ensure your Prometheus server can reach port ```9100``` (or the configured port) on the target hosts.
+3. ### Firewall: Ensure your Prometheus server can reach port ```9100``` (or the configured port) on the target hosts.
